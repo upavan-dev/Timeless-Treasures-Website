@@ -93,21 +93,69 @@
     <script>
         const leftArrow = document.querySelector('.left-arrow');
         const rightArrow = document.querySelector('.right-arrow');
+        const watchesContainer = document.querySelector('.watch-container');
         let scrollPosition = 0;
+        let touchStartX = 0;
+        let touchMoveX = 0;
         const cardWidth = 320;
+
+        // Mouse drag scroll for PC
+        let isDragging = false;
+        watchesContainer.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            touchStartX = e.pageX - scrollPosition;
+            watchesContainer.style.cursor = 'grabbing';
+        });
+
+        watchesContainer.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                touchMoveX = e.pageX;
+                scrollPosition = touchMoveX - touchStartX;
+                scrollPosition = Math.max(0, Math.min(scrollPosition, watchesContainer.scrollWidth - watchesContainer.clientWidth));
+                watchesContainer.querySelector('.watches').style.transform = `translateX(-${scrollPosition}px)`;
+            }
+        });
+
+        watchesContainer.addEventListener('mouseup', () => {
+            isDragging = false;
+            watchesContainer.style.cursor = 'grab';
+        });
+
+        watchesContainer.addEventListener('mouseleave', () => {
+            isDragging = false;
+            watchesContainer.style.cursor = 'grab';
+        });
+
+        // Touch scroll for mobile
+        watchesContainer.addEventListener('touchstart', (e) => {
+            touchStartX = e.touches[0].pageX - scrollPosition;
+        });
+
+        watchesContainer.addEventListener('touchmove', (e) => {
+            touchMoveX = e.touches[0].pageX;
+            scrollPosition = touchMoveX - touchStartX;
+            scrollPosition = Math.max(0, Math.min(scrollPosition, watchesContainer.scrollWidth - watchesContainer.clientWidth));
+            watchesContainer.querySelector('.watches').style.transform = `translateX(-${scrollPosition}px)`;
+        });
+
+        watchesContainer.addEventListener('touchend', () => {
+            // Optional: Add momentum or snap behavior if desired
+        });
+
+        // Arrow button scroll
         rightArrow.addEventListener('click', () => {
-            const watchesContainer = document.querySelector('.watches');
             const maxScroll = watchesContainer.scrollWidth - watchesContainer.clientWidth;
             scrollPosition += cardWidth;
             if (scrollPosition > maxScroll) scrollPosition = maxScroll;
-            watchesContainer.style.transform = `translateX(-${scrollPosition}px)`;
+            watchesContainer.querySelector('.watches').style.transform = `translateX(-${scrollPosition}px)`;
         });
+
         leftArrow.addEventListener('click', () => {
-            const watchesContainer = document.querySelector('.watches');
             scrollPosition -= cardWidth;
             if (scrollPosition < 0) scrollPosition = 0;
-            watchesContainer.style.transform = `translateX(-${scrollPosition}px)`;
+            watchesContainer.querySelector('.watches').style.transform = `translateX(-${scrollPosition}px)`;
         });
+
         function showLogin() { document.getElementById('loginModal').style.display = 'flex'; }
         function showSignup() { document.getElementById('signupModal').style.display = 'flex'; }
         function hideModal() { document.getElementById('loginModal').style.display = 'none'; document.getElementById('signupModal').style.display = 'none'; }
